@@ -31,10 +31,10 @@ describe("log4js", function(){
             expect(data[0].tag).to.be.equal('debug.INFO');
             expect(data[0].data).exist;
             expect(data[0].data.data).to.be.equal('foo bar');
-            expect(data[0].data.category).to.be.equal('mycategory');
+            expect(data[0].data.logger).to.be.equal('mycategory');
             expect(data[0].data.timestamp).exist;
             expect(data[0].data.levelInt).exist;
-            expect(data[0].data.levelStr).to.be.equal('INFO');
+            expect(data[0].data.level).to.be.equal('INFO');
             done();
           });
         }, 1000);
@@ -52,10 +52,10 @@ describe("log4js", function(){
             expect(data[0].tag).to.be.equal('debug');
             expect(data[0].data).exist;
             expect(data[0].data.data).to.be.equal('foo bar');
-            expect(data[0].data.category).to.be.equal('mycategory');
+            expect(data[0].data.logger).to.be.equal('mycategory');
             expect(data[0].data.timestamp).exist;
             expect(data[0].data.levelInt).exist;
-            expect(data[0].data.levelStr).to.be.equal('INFO');
+            expect(data[0].data.level).to.be.equal('INFO');
             done();
           });
         }, 1000);
