@@ -1,9 +1,15 @@
 var expect = require('chai').expect;
 var sender = require('../lib/sender');
+var EventTime = require('../lib/event-time').EventTime;
 var runServer = require('../lib/testHelper').runServer;
 var stream = require('stream');
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
+var msgpack = require('msgpack-lite');
+
+var codec = msgpack.createCodec();
+codec.addExtPacker(0x00, EventTime, EventTime.pack);
+codec.addExtUnpacker(0x00, EventTime.unpack);
 
 describe("FluentSender", function(){
   it('should send records', function(done){
@@ -27,6 +33,22 @@ describe("FluentSender", function(){
         });
       });
       async.series(emits);
+    });
+  });
+
+  it('should emit connect event', function(done) {
+    runServer({}, function(server, finish) {
+      var s = new sender.FluentSender('debug', {port: server.port});
+      var called = false;
+      s.on('connect', function() {
+        called = true;
+      });
+      s.emit({message: "1st message"}, function() {
+        finish(function(data) {
+          expect(called).to.equal(true);
+          done();
+        });
+      });
     });
   });
 
@@ -98,6 +120,21 @@ describe("FluentSender", function(){
       s.emit("1st record", { message: "1st data" }, function() {
         finish(function(data) {
           expect(data[0].data.custom).to.be.equal('tag');
+          done();
+        });
+      });
+    });
+  });
+
+  it('should allow to emit with a EventTime', function(done) {
+    runServer({}, function(server, finish) {
+      var s = new sender.FluentSender('debug', {port: server.port});
+      var eventTime = EventTime.now();
+
+      s.emit('1st record', { message: '1st data' }, eventTime, function() {
+        finish(function(data) {
+          var decoded = EventTime.unpack(data[0].time.buffer);
+          expect(JSON.stringify(decoded)).to.equal(JSON.stringify(eventTime));
           done();
         });
       });

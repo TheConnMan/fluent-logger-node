@@ -65,6 +65,38 @@ The emit method has following signature
 Where only the `record` argument is required. If the label is set it will be
 appended to the configured tag.
 
+### EventTime support
+
+We can also specify [EventTime](https://github.com/fluent/fluentd/wiki/Forward-Protocol-Specification-v1#eventtime-ext-format) as timestamp.
+
+```js
+var FluentLogger = require('fluent-logger');
+var EventTime = FluentLogger.EventTime;
+var logger = FluentLogger.createFluentSender('tag_prefix', {
+var eventTime = new EventTime(1489547207, 745003500); // 2017-03-15 12:06:47 +0900
+logger.emit('tag', { message: 'This is a message' }, eventTime);
+```
+
+### Events
+
+* `connect` : Handle [net.Socket Event: connect](https://nodejs.org/api/net.html#net_event_connect)
+* `error` : Handle [net.Socket Event: error](https://nodejs.org/api/net.html#net_event_error_1)
+
+```js
+var logger = require('fluent-logger').createFluentSender('tag_prefix', {
+   host: 'localhost',
+   port: 24224,
+   timeout: 3.0,
+   reconnectInterval: 600000 // 10 minutes
+});
+logger.on('error', function(error) {
+  console.log(error);
+});
+logger.on('connect', function() {
+  console.log('connected!');
+});
+```
+
 ## Logging Library Support
 
 ### log4js
